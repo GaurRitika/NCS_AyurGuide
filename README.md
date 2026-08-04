@@ -4,6 +4,8 @@ AyurGuide is a comprehensive, multi-service digital health platform that bridges
 
 ---
 
+Documentation : https://23cse132.mintlify.site/
+
 ## Table of Contents
 
 1. [Executive Overview](#executive-overview)
