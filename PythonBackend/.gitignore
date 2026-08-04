@@ -1,0 +1,8 @@
+/venv/
+.env
+node_modules/
+gcloud init/
+.dockerignore
+Dockerfile
+__pycache__/
+*.pyc
