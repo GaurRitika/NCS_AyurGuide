@@ -1,5 +1,6 @@
 /venv/
 .env
+/chroma_store/
 node_modules/
 gcloud init/
 .dockerignore

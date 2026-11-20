@@ -17,6 +17,9 @@ venv/
 # Build outputs
 dist/
 build/
+chroma_store/
+**/chroma_store/
+_response.json
 
 # IDE & OS
 .vscode/

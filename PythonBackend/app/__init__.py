@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .api.routes import router
@@ -9,7 +11,29 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
-app = FastAPI(title="Ayurvedic Consultation API")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Rebuild the RAG vector store on startup if it's empty. This matters
+    # on hosts with ephemeral disks (e.g. Render's free tier wipes disk on
+    # every redeploy) - the knowledge base's real source of truth is the
+    # .txt files committed to the repo, and the vector store is a
+    # regenerable artifact rebuilt from them, not something we rely on
+    # persisting across deploys. If the disk did survive (e.g. a plain
+    # restart), this is a fast no-op.
+    try:
+        from .services.rag.ingest import build_knowledge_base
+        build_knowledge_base(force=False)
+    except Exception as e:
+        # A knowledge-base build failure should not prevent the API from
+        # starting - RAG-dependent endpoints will fall back gracefully
+        # (see RecommendationEngine._get_reference_material), the rest
+        # of the app still works without it.
+        logger.error(f"RAG knowledge base build failed on startup: {e}")
+    yield
+
+
+app = FastAPI(title="Ayurvedic Consultation API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
